@@ -1,0 +1,1042 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cute Task Manager</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&family=Quicksand:wght@400;500;600;700&display=swap');
+
+        :root {
+            --primary-color: #ff85a2;
+            --secondary-color: #ffa8c0;
+            --tertiary-color: #ffccd5;
+            --accent-color: #a177ff;
+            --accent-secondary: #c9a9ff;
+            --light-color: #fff8fb;
+            --dark-color: #8f5a73;
+            --success-color: #7de2d1;
+            --danger-color: #ff85a2;
+            --border-radius: 18px;
+            --shadow: 0 8px 20px rgba(255, 133, 162, 0.2);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #ffccd5 0%, #ffc8dd 50%, #bde0fe 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            background-attachment: fixed;
+        }
+
+        .sparkle {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='white' stroke='%23ffccd5' stroke-width='2'%3E%3Cpath d='M12 2L15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2z'%3E%3C/path%3E%3C/svg%3E");
+            background-size: contain;
+            background-repeat: no-repeat;
+            opacity: 0.6;
+            animation: twinkle 3s infinite;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { transform: scale(0.5); opacity: 0.2; }
+            50% { transform: scale(1); opacity: 0.8; }
+        }
+
+        .container {
+            background-color: rgba(255, 255, 255, 0.92);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            width: 100%;
+            max-width: 650px;
+            overflow: hidden; /* Important for confetti containment if positioned relative to container */
+            padding: 30px;
+            position: relative; /* For ::before and absolute positioning of confetti */
+            border: 4px solid white;
+            z-index: 1;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 8px;
+            background: linear-gradient(90deg, #ff85a2, #ffa8c0, #ffccd5, #a177ff, #c9a9ff);
+            background-size: 400% 400%;
+            animation: gradient 10s ease infinite;
+        }
+
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        h1 {
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 32px;
+            font-weight: 700;
+            text-shadow: 0 1px 0 white;
+            letter-spacing: 0.5px;
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+
+        h1::after {
+            content: '✨';
+            font-size: 24px;
+            margin-left: 10px;
+            vertical-align: middle;
+        }
+
+        h1::before {
+            content: '✨';
+            font-size: 24px;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: var(--dark-color);
+            margin-bottom: 25px;
+            font-weight: 500;
+            font-size: 15px;
+        }
+
+        .task-form {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .task-input {
+            flex: 1;
+            padding: 14px 20px;
+            padding-left: 48px;
+            border: 3px solid var(--tertiary-color);
+            border-radius: var(--border-radius);
+            background-color: var(--light-color);
+            font-size: 16px;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.03);
+            transition: var(--transition);
+            color: var(--dark-color);
+        }
+
+        .task-input::placeholder {
+            color: #cba4b5;
+        }
+
+        .task-input:focus {
+            outline: none;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05), 0 0 0 3px rgba(255, 168, 192, 0.3);
+            border-color: var(--secondary-color);
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--secondary-color);
+            pointer-events: none;
+        }
+
+        .add-btn {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            padding: 12px 24px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 4px 10px rgba(255, 133, 162, 0.3);
+        }
+
+        .add-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px rgba(255, 133, 162, 0.4);
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+        }
+
+        .add-btn:active {
+            transform: translateY(0);
+        }
+
+        .filter-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+            gap: 10px;
+        }
+
+        .filter-btn {
+            background-color: var(--light-color);
+            border: 2px solid var(--tertiary-color);
+            border-radius: 30px;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--dark-color);
+            transition: var(--transition);
+        }
+
+        .filter-btn:hover {
+            border-color: var(--secondary-color);
+            background-color: #fff4f8;
+        }
+
+        .filter-btn.active {
+            background-color: var(--secondary-color);
+            color: white;
+            border-color: var(--secondary-color);
+        }
+
+        .tasks-container {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            max-height: 300px; /* Adjusted for better viewing with stats */
+            overflow-y: auto;
+            padding-right: 8px;
+            padding-bottom: 16px;
+        }
+
+        .tasks-container::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .tasks-container::-webkit-scrollbar-track {
+            background: #fff4f8;
+            border-radius: 10px;
+        }
+
+        .tasks-container::-webkit-scrollbar-thumb {
+            background: var(--tertiary-color);
+            border-radius: 10px;
+        }
+
+        .tasks-container::-webkit-scrollbar-thumb:hover {
+            background: var(--secondary-color);
+        }
+
+        .task-item {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 18px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            box-shadow: 0 4px 12px rgba(161, 119, 255, 0.1);
+            transition: var(--transition);
+            animation: slideIn 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+            border-left: 5px solid var(--accent-color);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .task-item:hover {
+            transform: translateY(-3px) scale(1.01);
+            box-shadow: 0 6px 16px rgba(161, 119, 255, 0.2);
+        }
+
+        .task-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background-color: var(--accent-color);
+            transition: var(--transition);
+        }
+
+        .task-item::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-color), transparent);
+            opacity: 0.2;
+        }
+
+        .task-item.completed {
+            background-color: #f9f6fd;
+            border-left-color: var(--success-color);
+        }
+
+        .task-item.completed::before {
+            background-color: var(--success-color);
+        }
+
+        .priority-marker {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 30px;
+            height: 30px;
+            transform: translate(15px, -15px) rotate(45deg);
+            z-index: 1; /* Ensure it's above task content */
+        }
+
+        .priority-high {
+            background-color: #ff8585;
+        }
+
+        .priority-medium {
+            background-color: #ffce85;
+        }
+
+        .priority-low {
+            background-color: #85d4ff;
+        }
+
+        .task-checkbox {
+            min-width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 2px solid var(--accent-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+            background-color: white;
+            z-index: 2; /* Ensure clickable */
+        }
+
+        .task-item.completed .task-checkbox {
+            background-color: var(--success-color);
+            border-color: var(--success-color);
+        }
+
+        .task-checkbox svg {
+            opacity: 0;
+            transition: var(--transition);
+            color: white;
+            transform: scale(0);
+        }
+
+        .task-item.completed .task-checkbox svg {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .task-content {
+            flex: 1;
+            word-break: break-word;
+            transition: var(--transition);
+            color: var(--dark-color);
+            font-size: 16px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .task-item.completed .task-content {
+            text-decoration: line-through;
+            color: #afa0b8;
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 8px;
+            z-index: 2; /* Ensure buttons are clickable */
+        }
+
+        .btn {
+            border: none;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+            color: white;
+            font-size: 16px;
+        }
+
+        .btn:hover {
+            transform: scale(1.1);
+        }
+
+        .complete-btn { /* Not directly used as checkbox handles completion */
+            background-color: var(--success-color);
+            box-shadow: 0 3px 8px rgba(125, 226, 209, 0.3);
+        }
+
+        .complete-btn:hover {
+            background-color: #6bd0bf;
+            box-shadow: 0 5px 12px rgba(125, 226, 209, 0.4);
+        }
+
+        .edit-btn {
+            background-color: var(--accent-color);
+            box-shadow: 0 3px 8px rgba(161, 119, 255, 0.3);
+        }
+
+        .edit-btn:hover {
+            background-color: #967af4;
+            box-shadow: 0 5px 12px rgba(161, 119, 255, 0.4);
+        }
+
+        .delete-btn {
+            background-color: var(--danger-color);
+            box-shadow: 0 3px 8px rgba(255, 133, 162, 0.3);
+        }
+
+        .delete-btn:hover {
+            background-color: #f76d8e;
+            box-shadow: 0 5px 12px rgba(255, 133, 162, 0.4);
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #b594a3;
+            padding: 40px 0;
+            font-style: italic;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .empty-state svg {
+            color: var(--tertiary-color);
+            margin-bottom: 10px;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 2px dashed var(--tertiary-color);
+            color: var(--dark-color);
+            font-size: 14px;
+        }
+
+        .stats-item {
+            text-align: center;
+            flex: 1;
+        }
+
+        .stats-number {
+            font-size: 24px;
+            font-weight: 700;
+            display: block;
+            margin-bottom: 5px;
+            color: var(--accent-color);
+        }
+
+        .stats-label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .mood-tracker {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+            gap: 15px;
+        }
+
+        .mood {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            opacity: 0.5;
+            transition: var(--transition);
+        }
+
+        .mood.selected {
+            opacity: 1;
+            transform: scale(1.1);
+        }
+
+        .mood-emoji {
+            font-size: 24px;
+        }
+
+        .mood-label {
+            font-size: 12px;
+            margin-top: 5px;
+            color: var(--dark-color);
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOut {
+            from {
+                transform: translateY(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateY(-30px);
+                opacity: 0;
+            }
+        }
+
+        .slide-out {
+            animation: slideOut 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards;
+        }
+
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: var(--accent-color); /* Fallback, JS will set specific color */
+            opacity: 0;
+            z-index: 1000; /* Ensure confetti is on top of other elements in container */
+            pointer-events: none; /* Prevent confetti from interfering with clicks */
+        }
+
+        @keyframes fall {
+            0% { transform: translateY(-20px) rotate(0deg); opacity: 1; } /* Start slightly above its initial position */
+            100% { transform: translateY(var(--translateY-end, 500px)) rotate(720deg); opacity: 0; } /* Fall further, more rotation */
+        }
+
+
+        .priority-dropdown { /* Not used in the current JS, but styles are here if you implement it */
+            position: absolute;
+            right: 0;
+            width: 150px;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            padding: 10px;
+            z-index: 100;
+            transform-origin: top right;
+            transition: transform 0.2s ease, opacity 0.2s ease;
+            transform: scale(0);
+            opacity: 0;
+        }
+
+        .priority-dropdown.show {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        .priority-option {
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: background-color 0.2s ease;
+        }
+
+        .priority-option:hover {
+            background-color: #f8f5fc;
+        }
+
+        .priority-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .high { background-color: #ff8585; }
+        .medium { background-color: #ffce85; }
+        .low { background-color: #85d4ff; }
+
+        .cute-footer {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 13px;
+            color: var(--dark-color);
+            opacity: 0.7;
+        }
+
+        .cute-footer span {
+            color: var(--primary-color);
+        }
+
+        /* Tooltip */
+        [data-tooltip] {
+            position: relative;
+        }
+
+        [data-tooltip]:after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%) scale(0);
+            background-color: var(--accent-color);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            white-space: nowrap;
+            transition: all 0.2s ease;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        [data-tooltip]:hover:after {
+            transform: translateX(-50%) scale(1);
+            opacity: 1;
+            bottom: calc(100% + 10px);
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+                border-radius: 15px;
+            }
+
+            h1 {
+                font-size: 26px;
+                margin-bottom: 15px;
+            }
+
+            .subtitle {
+                font-size: 14px;
+                margin-bottom: 20px;
+            }
+
+            .task-form {
+                margin-bottom: 20px;
+            }
+
+            .task-input, .add-btn {
+                padding: 12px 15px;
+                font-size: 14px;
+            }
+
+            .task-input {
+                padding-left: 40px;
+            }
+
+            .input-icon {
+                left: 14px;
+            }
+
+            .task-item {
+                padding: 15px;
+            }
+
+            .btn {
+                width: 32px;
+                height: 32px;
+            }
+
+            .filter-container {
+                flex-wrap: wrap;
+            }
+
+            .mood-tracker {
+                flex-wrap: wrap;
+            }
+
+            .stats {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .stats-item {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+            }
+
+            .stats-number {
+                margin-bottom: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Cute Task Planner</h1>
+        <div class="subtitle">Stay organized with style, accomplish your goals & feel amazing! ✨</div>
+        
+        <form class="task-form" id="task-form">
+            <div class="input-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 20h9"></path>
+                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                </svg>
+            </div>
+            <input type="text" class="task-input" id="task-input" placeholder="What's on your mind today?" autocomplete="off">
+            <button type="submit" class="add-btn">
+                Add
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 5v14M5 12h14"></path>
+                </svg>
+            </button>
+        </form>
+        
+        <div class="filter-container">
+            <button class="filter-btn active" data-filter="all" data-tooltip="Show all tasks">All</button>
+            <button class="filter-btn" data-filter="active" data-tooltip="Show active tasks">Active</button>
+            <button class="filter-btn" data-filter="completed" data-tooltip="Show completed tasks">Completed</button>
+        </div>
+        
+        <div class="tasks-container" id="tasks-container">
+            <!-- Task items will be rendered here by JavaScript -->
+            <div class="empty-state" id="empty-state">
+                <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z"></path>
+                    <path d="M17 4a2 2 0 0 0 2 2a2 2 0 0 0 -2 2a2 2 0 0 0 -2 -2a2 2 0 0 0 2 -2"></path>
+                    <path d="M19 11h2m-1 -1v2"></path>
+                </svg>
+                No tasks yet. Add something sweet to your list! 💖
+            </div>
+        </div>
+        
+        <div class="stats" id="stats">
+            <div class="stats-item">
+                <span class="stats-number" id="total-tasks">0</span>
+                <span class="stats-label">Total Tasks</span>
+            </div>
+            <div class="stats-item">
+                <span class="stats-number" id="completed-tasks">0</span>
+                <span class="stats-label">Completed</span>
+            </div>
+            <div class="stats-item">
+                <span class="stats-number" id="remaining-tasks">0</span>
+                <span class="stats-label">Remaining</span>
+            </div>
+        </div>
+        
+        <div class="mood-tracker">
+            <div class="mood" data-mood="happy" data-tooltip="Feeling Happy!">
+                <div class="mood-emoji">😊</div>
+                <div class="mood-label">Happy</div>
+            </div>
+            <div class="mood" data-mood="productive" data-tooltip="Feeling Productive!">
+                <div class="mood-emoji">🚀</div>
+                <div class="mood-label">Productive</div>
+            </div>
+            <div class="mood" data-mood="relaxed" data-tooltip="Feeling Relaxed!">
+                <div class="mood-emoji">😌</div>
+                <div class="mood-label">Relaxed</div>
+            </div>
+            <div class="mood" data-mood="tired" data-tooltip="Feeling Tired.">
+                <div class="mood-emoji">😴</div>
+                <div class="mood-label">Tired</div>
+            </div>
+        </div>
+        
+        <div class="cute-footer">
+            Made with <span>♥</span> for your productivity
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const taskForm = document.getElementById('task-form');
+            const taskInput = document.getElementById('task-input');
+            const tasksContainer = document.getElementById('tasks-container');
+            const emptyState = document.getElementById('empty-state');
+            const filterBtns = document.querySelectorAll('.filter-btn');
+            const totalTasksEl = document.getElementById('total-tasks');
+            const completedTasksEl = document.getElementById('completed-tasks');
+            const remainingTasksEl = document.getElementById('remaining-tasks');
+            const moodElements = document.querySelectorAll('.mood');
+            const body = document.querySelector('body');
+            const mainContainer = document.querySelector('.container');
+            
+            // Create sparkles for the background
+            for (let i = 0; i < 20; i++) {
+                createSparkle();
+            }
+            
+            function createSparkle() {
+                const sparkle = document.createElement('div');
+                sparkle.classList.add('sparkle');
+                sparkle.style.top = `${Math.random() * 100}%`;
+                sparkle.style.left = `${Math.random() * 100}%`;
+                sparkle.style.animationDelay = `${Math.random() * 3}s`;
+                body.appendChild(sparkle);
+            }
+            
+            let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+            let currentFilter = 'all';
+            let currentMood = localStorage.getItem('currentMood') || null;
+            
+            if (currentMood) {
+                const moodEl = document.querySelector(`.mood[data-mood="${currentMood}"]`);
+                if (moodEl) moodEl.classList.add('selected');
+            }
+            
+            function saveTasks() {
+                localStorage.setItem('tasks', JSON.stringify(tasks));
+            }
+            
+            renderTasks();
+            updateStats();
+            
+            taskForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                addTask();
+            });
+            
+            filterBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    filterBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentFilter = btn.dataset.filter;
+                    renderTasks();
+                });
+            });
+            
+            moodElements.forEach(mood => {
+                mood.addEventListener('click', () => {
+                    moodElements.forEach(m => m.classList.remove('selected'));
+                    mood.classList.add('selected');
+                    currentMood = mood.dataset.mood;
+                    localStorage.setItem('currentMood', currentMood);
+                    createConfettiEffect(15, mood.querySelector('.mood-emoji'));
+                });
+            });
+            
+            function addTask() {
+                const taskText = taskInput.value.trim();
+                
+                if (taskText !== '') {
+                    const priority = getRandomPriority();
+                    
+                    const newTask = {
+                        id: Date.now(),
+                        text: taskText,
+                        completed: false,
+                        priority: priority,
+                        createdAt: new Date().toISOString()
+                    };
+                    
+                    tasks.unshift(newTask);
+                    saveTasks();
+                    renderTasks();
+                    updateStats();
+                    taskInput.value = '';
+                    taskInput.focus();
+                    
+                    createConfettiEffect(20);
+                }
+            }
+            
+            function getRandomPriority() {
+                const priorities = ['high', 'medium', 'low'];
+                return priorities[Math.floor(Math.random() * priorities.length)];
+            }
+            
+            function renderTasks() {
+                const taskElements = tasksContainer.querySelectorAll('.task-item');
+                taskElements.forEach(task => task.remove());
+                
+                let filteredTasks = tasks;
+                if (currentFilter === 'active') {
+                    filteredTasks = tasks.filter(task => !task.completed);
+                } else if (currentFilter === 'completed') {
+                    filteredTasks = tasks.filter(task => task.completed);
+                }
+                
+                if (filteredTasks.length === 0) {
+                    emptyState.style.display = 'flex';
+                     if (!tasksContainer.contains(emptyState)) { // Ensure empty state is in DOM if needed
+                        tasksContainer.appendChild(emptyState);
+                    }
+                } else {
+                    emptyState.style.display = 'none';
+                    if (tasksContainer.contains(emptyState)) { // Remove if present
+                        tasksContainer.removeChild(emptyState);
+                    }
+                    filteredTasks.forEach((task) => renderTask(task));
+                }
+            }
+            
+            function escapeHTML(str) {
+                const div = document.createElement('div');
+                div.appendChild(document.createTextNode(str));
+                return div.innerHTML;
+            }
+
+            function renderTask(task) {
+                const taskElement = document.createElement('div');
+                taskElement.classList.add('task-item');
+                if (task.completed) {
+                    taskElement.classList.add('completed');
+                }
+                taskElement.dataset.id = task.id;
+                
+                const priorityClass = `priority-${task.priority}`;
+                taskElement.innerHTML = `
+                    <div class="priority-marker ${priorityClass}"></div>
+                    <div class="task-checkbox" data-tooltip="Mark as ${task.completed ? 'incomplete' : 'complete'}">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                    </div>
+                    <span class="task-content">${escapeHTML(task.text)}</span>
+                    <div class="task-actions">
+                        <button class="btn edit-btn" data-tooltip="Edit Task">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                        </button>
+                        <button class="btn delete-btn" data-tooltip="Delete Task">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                        </button>
+                    </div>
+                `;
+                
+                const checkbox = taskElement.querySelector('.task-checkbox');
+                const editBtn = taskElement.querySelector('.edit-btn');
+                const deleteBtn = taskElement.querySelector('.delete-btn');
+                
+                checkbox.addEventListener('click', () => toggleComplete(task.id));
+                editBtn.addEventListener('click', () => editTask(task.id, taskElement));
+                deleteBtn.addEventListener('click', () => deleteTask(task.id, taskElement));
+                
+                // Prepend new tasks so they appear at the top of the list
+                tasksContainer.insertBefore(taskElement, tasksContainer.firstChild);
+            }
+
+            function toggleComplete(id) {
+                const taskIndex = tasks.findIndex(task => task.id === id);
+                if (taskIndex > -1) {
+                    tasks[taskIndex].completed = !tasks[taskIndex].completed;
+                    if (tasks[taskIndex].completed) {
+                         createConfettiEffect(10); // Confetti for completing a task
+                    }
+                }
+                saveTasks();
+                renderTasks(); // Re-render to update classes and potentially filter
+                updateStats();
+            }
+
+            function editTask(id, taskElement) {
+                const task = tasks.find(t => t.id === id);
+                if (!task) return;
+
+                const newText = prompt('Edit your cute task:', task.text);
+                if (newText !== null && newText.trim() !== '') {
+                    task.text = newText.trim();
+                    saveTasks();
+                    taskElement.querySelector('.task-content').textContent = escapeHTML(task.text); // Update only the text
+                    // No full re-render needed for simple text edit
+                }
+            }
+
+            function deleteTask(id, taskElement) {
+                if (confirm('Are you sure you want to delete this task? 😢')) {
+                    taskElement.classList.add('slide-out');
+                    taskElement.addEventListener('animationend', () => {
+                        tasks = tasks.filter(task => task.id !== id);
+                        saveTasks();
+                        taskElement.remove(); // Remove element directly
+                        updateStats();
+                        // If tasksContainer is now empty after deletion and emptyState is not present
+                        if (tasksContainer.childElementCount === 1 && tasksContainer.contains(emptyState) && tasks.length === 0) {
+                           // This case is fine, emptyState is already there and tasks are 0
+                        } else if (tasksContainer.childElementCount === 0 && !tasksContainer.contains(emptyState)) {
+                            // If all items removed and emptyState isn't there (it should have been removed)
+                             renderTasks(); // This will re-add emptyState if needed
+                        } else if (tasks.length === 0 && !tasksContainer.contains(emptyState)) {
+                            renderTasks();
+                        }
+
+                    }, { once: true });
+                }
+            }
+
+            function updateStats() {
+                const completedCount = tasks.filter(task => task.completed).length;
+                const totalCount = tasks.length;
+                
+                totalTasksEl.textContent = totalCount;
+                completedTasksEl.textContent = completedCount;
+                remainingTasksEl.textContent = totalCount - completedCount;
+            }
+
+            function createConfettiEffect(count = 20, targetElement = null) {
+                const containerRect = mainContainer.getBoundingClientRect();
+                const mainContainerStyle = getComputedStyle(mainContainer);
+                const containerScrollTop = mainContainer.scrollTop; // Account for scrolling within container if tasksContainer is long
+
+                for (let i = 0; i < count; i++) {
+                    const confetti = document.createElement('div');
+                    confetti.classList.add('confetti');
+                    
+                    let startX, startY;
+
+                    if (targetElement) {
+                        const targetRect = targetElement.getBoundingClientRect();
+                        // Calculate position relative to the .container element
+                        startX = targetRect.left + targetRect.width / 2 - containerRect.left;
+                        startY = targetRect.top + targetRect.height / 2 - containerRect.top + containerScrollTop;
+                    } else { // General confetti, e.g., for adding a task
+                        startX = Math.random() * containerRect.width;
+                        startY = (Math.random() * 50) + containerScrollTop; // Start near top of visible area
+                    }
+
+                    confetti.style.left = `${startX}px`;
+                    confetti.style.top = `${startY}px`;
+                    
+                    const colors = ['var(--primary-color)', 'var(--secondary-color)', 'var(--accent-color)', 'var(--success-color)', '#FFD700', '#FFB6C1'];
+                    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    
+                    // Make confetti fall within the bounds of the main container
+                    const fallDistance = containerRect.height - (startY - containerScrollTop) + 50; // Fall to bottom + a bit more
+                    confetti.style.setProperty('--translateY-end', `${fallDistance}px`);
+                    
+                    const animationDuration = Math.random() * 1.5 + 2.5; // 2.5-4 seconds
+                    const fallDelay = Math.random() * 0.3;
+
+                    confetti.style.animation = `fall ${animationDuration}s ${fallDelay}s cubic-bezier(0.250, 0.460, 0.450, 0.940) forwards`;
+                    
+                    mainContainer.appendChild(confetti);
+                    
+                    confetti.addEventListener('animationend', () => {
+                        confetti.remove();
+                    });
+                }
+            }
+        });
+    </script>
+</body>
+</html>
